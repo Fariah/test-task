@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateUserProfile;
 use App\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -33,7 +34,7 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        if(Auth::user()->id != $user->id) {
+        if(Gate::forUser($user)->denies('users-edit')) {
             return abort(403, 'You do not have access to update this profile');
         }
         return view('users.edit', ['user' => $user]);
