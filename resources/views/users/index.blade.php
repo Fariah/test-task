@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">Users dashboard</div>
+                <div class="card-header">{{ __('users.list.dashboard.title') }}</div>
 
                 <div class="card-body">
                     @if(!empty($errors->first()))
@@ -19,9 +19,9 @@
                         <thead>
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Actions</th>
+                            <th scope="col">{{ __('users.list.title') }}</th>
+                            <th scope="col">{{ __('users.list.email') }}</th>
+                            <th scope="col">{{ __('users.list.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -31,10 +31,11 @@
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>
-                                    @role('admin')
-                                    <a class="btn btn-sm btn-danger delete-user" data-toggle="confirmation" data-title="Delete user?"
-                                       data-id="{{ $user->id }}" >delete</a>
-                                    @endrole
+                                    @can('isAdmin')
+                                        <a class="btn btn-sm btn-danger delete-user" data-id="{{ $user->id }}" >
+                                            {{ __('users.list.delete') }}
+                                        </a>
+                                    @endcan
                                 </td>
                             </tr>
                         @endforeach
@@ -49,14 +50,14 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-body">
-                    <h6>Are you sure that you want to delete user?</h6>
+                    <h6>{{ __('users.list.confirm') }}</h6>
                 </div>
                 <div class="modal-footer">
                     <form id="DeleteUserForm" method="POST" action="">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                        {{ method_field('DELETE') }}
-                        {{ csrf_field() }}
+                        @method('DELETE')
+                        @csrf
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('users.form.close') }}</button>
+                        <button type="submit" class="btn btn-danger">{{ __('users.form.delete') }}</button>
                     </form>
                 </div>
             </div>

@@ -18,10 +18,7 @@ class UpdateUserProfile extends FormRequest
      */
     public function authorize(Request $request)
     {
-        if(Auth::user()->id == $request->user->id) {
-            return true;
-        }
-        return false;
+        return Auth::user()->id == $request->user->id;
     }
 
     //TODO Don`t know what we need here

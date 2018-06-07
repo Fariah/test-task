@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateUserProfile;
 use App\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -28,15 +26,15 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\User  $user
+     * @param User $user
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(User $user)
     {
-        if(Gate::forUser($user)->denies('users-edit')) {
-            return abort(403, 'You do not have access to update this profile');
-        }
+        $this->authorize('users-edit', $user);
+
         return view('users.edit', ['user' => $user]);
     }
 
@@ -51,15 +49,17 @@ class UserController extends Controller
     public function update(UpdateUserProfile $updateUserProfile, User $user)
     {
         try {
-            $user->name = $updateUserProfile->get('name', $user->name);
-            $user->email = $updateUserProfile->get('email', $user->email);
-            if($password = $updateUserProfile->get('password')) {
+            $user->name = $updateUserProfile->name;
+            $user->email = $updateUserProfile->email;
+
+            if ($password = $updateUserProfile->get('password')) {
                 $user->password =  Hash::make($password);
             }
             $user->save();
         } catch (\Exception $exception) {
             return abort(500, 'Server error');
         }
+
         return view('users.edit', ['user' => $user]);
     }
 
@@ -73,11 +73,8 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         try {
-            if(Auth::user()->hasRole(User::ADMIN_ROLE)) {
-                $user->delete();
-            } else {
-                return abort(403, 'You don`t have permissions');
-            }
+            $this->authorize('isAdmin');
+            $user->delete();
         } catch (\Exception $exception) {
             return abort(500, 'Server error');
         }
